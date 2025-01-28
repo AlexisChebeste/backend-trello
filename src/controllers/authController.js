@@ -24,7 +24,7 @@ const signup = async (req, res) => {
 
         const user = new User(req.body);
         const randomGradient = getRandomGradient()
-        user.avatar = `/public/gradientes/${randomGradient}`,
+        user.avatar = `/gradientes/${randomGradient}`,
 
         await user.save();
         res.status(201).json({message: 'User registered successfully'});

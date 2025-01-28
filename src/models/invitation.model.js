@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
+const {Schema} = mongoose;
 
-const invitationSchema = new mongoose.Schema({
+const invitationSchema = new Schema({
     token: { 
-        type: String, 
+        type: Schema.Types.String, 
         required: true, 
         unique: true 
     }, // Token único para la invitación
     workspace: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: Schema.Types.ObjectId, 
         ref: 'Workspace', 
         default: null 
     }, // Workspace asociado (si es una invitación a workspace)
     board: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: Schema.Types.ObjectId, 
         ref: 'Board', 
         default: null 
     }, // Board asociado (si es una invitación a board)
@@ -21,11 +22,11 @@ const invitationSchema = new mongoose.Schema({
         required: true 
     }, // Email de la persona invitada
     expiresAt: {
-        type: Date, 
+        type: Schema.Types.Date, 
         required: true 
     }, // Fecha de expiración de la invitación
     status: { 
-        type: String, 
+        type: Schema.Types.String, 
         enum: ['pending', 'accepted', 'expired'], 
         default: 'pending' 
     }, // Estado de la invitación

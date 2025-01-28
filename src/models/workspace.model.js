@@ -22,11 +22,6 @@ const workspaceSchema = new Schema({
         type: Schema.Types.Boolean, 
         default: true
     },
-    admin: { 
-        type: Schema.Types.ObjectId, 
-        ref: 'User',
-        required: true
-    },
     members: [{ 
         type: Schema.Types.ObjectId, 
         ref: 'User',
@@ -58,6 +53,14 @@ workspaceSchema.methods.getDefaultAvatar = function() {
     return {initials, bgColor};
 }
 
-
+workspaceSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret, options) => {
+        delete ret.__v;
+        delete ret._id;
+        return ret;
+    }
+    
+});
 
 module.exports = mongoose.model('Workspace', workspaceSchema);

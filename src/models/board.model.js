@@ -1,41 +1,43 @@
 const mongoose = require('mongoose');
 
-const boardSchema = new mongoose.Schema({
+const {Schema}  = require('mongoose');
+
+const boardSchema = new Schema({
     name: { 
-        type: String, 
+        type: Schema.Types.String, 
         required: true 
     },
     color: { 
-        type: String, 
+        type: Schema.Types.String, 
         required: true 
     },
     description: { 
-        type: String, 
+        type: Schema.Types.String, 
         default: '' 
     },
     isArchived: { 
-        type: Boolean, 
+        type: Schema.Types.Boolean, 
         default: false 
     },
     lastActive: { 
-        type: Date, 
+        type: Schema.Types.Date, 
         default: Date.now 
     },
     idWorkspace: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: Schema.Types.ObjectId, 
         ref: 'Workspace', required: true 
     }, // Referencia al workspace
     lists: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: Schema.Types.ObjectId, 
         ref: 'List' 
     }], // Referencia a listas
     members: [{ 
         user:{
-            type: mongoose.Schema.Types.ObjectId, 
+            type: Schema.Types.ObjectId, 
              ref: 'User' 
         },
         role: { 
-            type: String, 
+            type: Schema.Types.String, 
             enum: ['admin', 'member'],
             default: 'member' 
         }

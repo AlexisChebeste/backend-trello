@@ -9,9 +9,8 @@ const router = Router();
 router.post('/auth/signup', authController.signup);
 router.post('/auth/login', authController.login);
 router.post('/auth/logout', authController.logout);
-router.get('/me', authMiddleware, async (req, res) => {
-    const user = await User.findById(req.userId);
-    res.status(200).json(user);
+router.get('/profile', authMiddleware, (req, res) => {
+    res.status(200).json({user: req.user});
 });
 
 module.exports = router;

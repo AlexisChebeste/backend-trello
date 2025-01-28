@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+const {Schema} = require('mongoose');
 
-const cardSchema = new mongoose.Schema({
+const cardSchema = new Schema({
     title: { 
-        type: String, 
+        type: Schema.Types.String, 
         required: true 
     },
     description: { 
@@ -10,30 +11,30 @@ const cardSchema = new mongoose.Schema({
         default: '' 
     },
     dueDate: { 
-        type: Date, 
+        type: Schema.Types.Date, 
         default: () => new Date(Date.now() + 24 * 60 * 60 * 1000)
     }, // Fecha de vencimiento
     position: { 
-        type: Number, 
+        type: Schema.Types.Number, 
         required: true 
     }, // Orden de la tarjeta en la lista
     idList: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: Schema.Types.ObjectId, 
         ref: 'List', 
         required: true 
     }, // Referencia a la lista
     activity: [{
         user: { 
-            type: mongoose.Schema.Types.ObjectId, 
+            type: Schema.Types.ObjectId, 
             ref: 'User', 
             required: true 
         }, // Usuario que realizó la actividad
         action: { 
-            type: String, 
+            type: Schema.Types.String, 
             required: true 
         }, // Acción realizada
         timestamp: { 
-            type: Date, 
+            type: Schema.Types.Date, 
             default: Date.now 
         }, // Momento de la actividad
     }],
