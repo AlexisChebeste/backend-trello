@@ -1,10 +1,10 @@
 const Workspace = require('../models/workspace.model');
 
 const validateWorkspaceMember = async (req, res, next) => {
-    const { workspaceId } = req.params;
+    const { id } = req.params;
 
     try {
-        const workspace = await Workspace.findById(workspaceId);
+        const workspace = await Workspace.findById(id);
 
         if (!workspace) {
             return res.status(404).json({ message: 'Workspace not found' });

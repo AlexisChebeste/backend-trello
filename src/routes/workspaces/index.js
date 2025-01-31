@@ -12,8 +12,12 @@ const router = Router();
 router.use(authMiddleware)
 
 // Rutas principales de workspace
-router.get('/', 
+router.get('/all', 
     workspacesController.getAllWorkspaces
+); // Obtener todos los workspaces
+
+router.get('/my-workspaces', 
+    workspacesController.getAllWorkspacesByUser
 ); // Obtener todos los workspaces del usuario
 
 router.post('/', 
@@ -26,19 +30,16 @@ router.get('/:id',
     workspacesController.getWorkspaceById
 ); // Obtener detalles de un workspace
 
-/* 
-
-
-
-router.patch('/:workspaceId', 
+router.patch('/:id', 
     validateWorkspaceMember, 
     workspacesController.updateWorkspace
 ); // Editar un workspace
 
-router.delete('/:workspaceId', 
+router.delete('/:id', 
+    validateId(Workspace, 'workspace'),
     validateWorkspaceMember, 
     workspacesController.deleteWorkspace
-); // Eliminar un workspace */
+); 
 
 
 
