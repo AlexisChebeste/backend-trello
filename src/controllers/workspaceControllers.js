@@ -107,7 +107,18 @@ const deleteWorkspace = async (req,res)=> {
 
 controller.deleteWorkspace = deleteWorkspace
 
+const changePublicStatus = async (req,res) => {
+    const { id } = req.params;
+    const { isPublic } = req.body;
 
+    try{
+        const workspace = await Workspace.findByIdAndUpdate(id, {isPublic}, {new: true})
+        res.status(200).json(workspace)
+    }catch(error){
+        res.status(500).json({error: "Error al cambiar la visibilidad del workspace", details: error.message })
+    }
+}
 
+controller.changePublicStatus = changePublicStatus
 
 module.exports = controller;

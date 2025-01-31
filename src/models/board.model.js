@@ -23,10 +23,15 @@ const boardSchema = new Schema({
         type: Schema.Types.Date, 
         default: Date.now 
     },
+    isPublic: {
+        type: Schema.Types.Boolean, 
+        default: true
+    },
     idWorkspace: { 
         type: Schema.Types.ObjectId, 
         ref: 'Workspace', required: true 
     }, // Referencia al workspace
+
     lists: [{ 
         type: Schema.Types.ObjectId, 
         ref: 'List' 
@@ -43,6 +48,37 @@ const boardSchema = new Schema({
         }
         
     }], // Usuarios que pueden acceder al board
+    invitations: [{
+        email: { 
+            type: String, 
+            required: true, 
+            trim: true
+        },
+        invitedBy: { 
+            type: Schema.Types.ObjectId, 
+            ref: 'User',
+            required: true 
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'accepted', 'declined'],
+            default: 'pending'
+        },
+        createdAt: { 
+            type: Date, 
+            default: Date.now 
+        }
+    }] // Invitaciones a usuarios externos
 }, { timestamps: true });
+
+boardSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret, options) => {
+        delete ret.__v;
+        delete ret._id;
+        return ret;
+    }
+    
+});
 
 module.exports = mongoose.model('Board', boardSchema);

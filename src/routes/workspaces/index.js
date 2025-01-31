@@ -35,11 +35,16 @@ router.patch('/:id',
     workspacesController.updateWorkspace
 ); // Editar un workspace
 
+router.put('/:id/is-public',
+    validateWorkspaceMember,
+    workspacesController.changePublicStatus
+); // Cambiar el estado de publico a privado y viceversa
+
 router.delete('/:id', 
     validateId(Workspace, 'workspace'),
     validateWorkspaceMember, 
     workspacesController.deleteWorkspace
-); 
+); // Eliminar un workspace
 
 
 
@@ -56,10 +61,8 @@ router.delete('/:workspaceId/members/:userId', validateWorkspaceMember, workspac
 
 /* // Invitaciones
 const invitationsRouter = require('./invitations');
-router.use('/:workspaceId/invitations', invitationsRouter); // Subruta para invitaciones
+router.use('/:workspaceId/invitations', invitationsRouter); // Subruta para invitaciones*/
 
-// Boards dentro del workspace
-const boardsRouter = require('./boards');
-router.use('/:workspaceId/boards', boardsRouter); // Subruta para boards */
+
 
 module.exports = router;
