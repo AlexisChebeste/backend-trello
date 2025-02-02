@@ -4,7 +4,7 @@ const Workspace = require('../models/workspace.model')
 
 controller = {}
 
-const restoreBoard = async (req, res) => {
+const archiveBoard = async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -13,15 +13,15 @@ const restoreBoard = async (req, res) => {
             return res.status(404).json({ error: "El board no existe" });
         }
 
-        board.isArchived = false;
+        board.isArchived = !board.isArchived;
         await board.save();
 
-        res.status(200).json({ message: "Board restaurado correctamente", board });
+        res.status(200).json(board);
     } catch (error) {
         res.status(500).json({ error: "Error al restaurar el board", details: error.message });
     }
 };
-controller.restoreBoard = restoreBoard
+controller.archiveBoard = archiveBoard
 
 const createBoard = async (req, res) => {
     const { name, idWorkspace, isPublic, color} = req.body;
@@ -65,6 +65,74 @@ const createBoard = async (req, res) => {
 controller.createBoard = createBoard
 
 
+const getBoardsByWorkspace = async (req, res) => {
+    const { id } = req.params;
 
+    try {
+        const boards = await Board.find({ idWorkspace: id});
+        res.status(200).json(boards);
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener los boards", details: error.message });
+    }
+};
+
+controller.getBoardsByWorkspace = getBoardsByWorkspace
+
+const getBoard = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const board = await Board.findById(id);
+
+        res.status(200).json(board);
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener el board", details: error.message });
+    }
+};
+
+controller.getBoard = getBoard
+
+const updateBoard = async (req, res) => {
+    const { id } = req.params;
+    const { name, isPublic, color } = req.body;
+
+    try {
+        const board = await Board.findById(id);
+        if (!board) {
+            return res.status(404).json({ error: "El board no existe" });
+        }
+
+        board.name = name;
+        board.isPublic = isPublic;
+        board.color = color;
+        await board.save();
+
+        res.status(200).json(board);
+    } catch (error) {
+        res.status(500).json({ error: "Error al actualizar el board", details: error.message });
+    }
+}
+
+controller.updateBoard = updateBoard
+
+const deleteBoard = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const board = await Board.findById(id);
+        if (!board) {
+            return res.status(404).json({ error: "El board no existe" });
+        }
+
+        board.isArchived = true;
+        await board.save();
+
+        res.status(200).json(board);
+    } catch (error) {
+        res.status(500).json({ error: "Error al eliminar el board", details: error.message });
+    }
+};
+
+controller.deleteBoard = deleteBoard
 
 module.exports = controller;

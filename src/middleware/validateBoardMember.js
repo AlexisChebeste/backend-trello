@@ -1,6 +1,6 @@
 const Board = require('../models/board.model');
 
-const validateBoardAccess = async (req, res, next) => {
+const validateBoardMember = async (req, res, next) => {
     const { boardId } = req.params;
 
     try {
@@ -25,3 +25,5 @@ const validateBoardAccess = async (req, res, next) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+module.exports = validateBoardMember;
