@@ -1,10 +1,10 @@
 const Board = require('../models/board.model');
 
 const validateBoardMember = async (req, res, next) => {
-    const { boardId } = req.params;
+    const { id } = req.params;
 
     try {
-        const board = await Board.findById(boardId).populate('idWorkspace');
+        const board = await Board.findById(id).populate('idWorkspace');
 
         if (!board) {
             return res.status(404).json({ message: 'Board not found' });
