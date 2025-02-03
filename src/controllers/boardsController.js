@@ -1,7 +1,6 @@
 const Board = require('../models/board.model');
 const User = require('../models/user.model');
 const Workspace = require('../models/workspace.model')
-
 controller = {}
 
 const archiveBoard = async (req, res) => {
@@ -119,15 +118,20 @@ const deleteBoard = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const board = await Board.findById(id);
-        if (!board) {
-            return res.status(404).json({ error: "El board no existe" });
-        }
+        await User.updateMany(
+            {boards: id},
+            {$pull : {boards: id}}
+        );
+        await Workspace.updateMany(
+            {boards: id},
+            {$pull : {boards: id}}
+        );
 
-        board.isArchived = true;
-        await board.save();
+        
 
-        res.status(200).json(board);
+        await Board.findByIdAndDelete(id);
+
+        res.status(200).json({message: "Board eliminado con éxito"})
     } catch (error) {
         res.status(500).json({ error: "Error al eliminar el board", details: error.message });
     }

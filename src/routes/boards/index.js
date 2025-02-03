@@ -40,6 +40,7 @@ router.put('/:id/archive',
 
 router.delete('/:id', 
     validateId(Board, 'board'),
+    validateBoardMember,
     boardsController.deleteBoard
 )// Eliminar un board en específico
 
