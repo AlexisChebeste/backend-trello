@@ -40,4 +40,14 @@ const cardSchema = new Schema({
     }],
 }, { timestamps: true });
 
+cardSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret, options) => {
+        delete ret.__v;
+        delete ret._id;
+        return ret;
+    }
+    
+});
+
 module.exports = mongoose.model('Card', cardSchema);

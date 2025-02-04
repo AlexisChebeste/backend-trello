@@ -1,7 +1,5 @@
 const Board = require('../models/board.model');
 const List = require('../models/list.model');
-const User = require('../models/user.model');
-const Workspace = require('../models/workspace.model')
 controller = {}
 
 
@@ -9,7 +7,6 @@ const createList = async (req, res) => {
     const { title, boardId} = req.body;
 
     try {
-
         const board = await Board.findById(boardId);
         if (!board) {
             return res.status(404).json({ error: "El board no existe" });
@@ -20,13 +17,13 @@ const createList = async (req, res) => {
         const newList = new List({
             title, 
             boardId,
-            position: count,
+            position: count + 1,
             cards: []
         });
         await newList.save();
 
 
-        board.lists.push(newBoard.id);
+        board.lists.push(newList.id);
         await board.save();
         
         res.status(201).json(newList);

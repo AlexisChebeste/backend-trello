@@ -28,7 +28,6 @@ router.post('/',
 
 router.put('/:id', 
     validateId(List, 'list'),
-    validateBoardMember,
     listController.updateList
 )// Actualizar una lista en específico
 

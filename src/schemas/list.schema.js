@@ -9,7 +9,7 @@ const listJoiSchema = Joi.object({
       'string.max': 'El titulo no puede exceder los 50 caracteres.',
       'any.required': 'El titulo es obligatorio.'
     }),
-    position: Joi.number().required().messages({
+    position: Joi.number().messages({
       'number.base': 'La posición debe ser un número.',
       'any.required': 'La posición es obligatoria.'
     }),

@@ -21,4 +21,14 @@ const listSchema = new Schema({
     }, // Referencia al board
 }, { timestamps: true });
 
+listSchema.set('toJSON', {
+    virtuals: true,
+    transform: (doc, ret, options) => {
+        delete ret.__v;
+        delete ret._id;
+        return ret;
+    }
+    
+});
+
 module.exports = mongoose.model('List', listSchema);
