@@ -5,10 +5,11 @@ const router = express.Router();
 const authRoutes = require('./authRoutes');
 const workspacesRoutes = require('./workspaces');
 const boardsRoutes = require('./boards');
-
-router.use('/boards', boardsRoutes);        // Rutas de boards */
+const listsRoutes = require('./lists');
 
 // Prefijos para las rutas principales
+router.use('/boards', boardsRoutes);        // Rutas de boards */
+router.use('/lists', listsRoutes);          // Rutas de lists */
 router.use('/workspaces', workspacesRoutes); // Rutas de workspaces // 
 router.use(authRoutes);           // Rutas de autenticación
 
