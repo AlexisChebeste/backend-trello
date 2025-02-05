@@ -66,8 +66,8 @@ const deleteList = async (req, res) => {
 
     try {
         await Board.updateMany(
-            {list: id},
-            {$pull : {list: id}}
+            {lists: id},
+            {$pull : {lists: id}}
         );
         
 
