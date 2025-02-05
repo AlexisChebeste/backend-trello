@@ -10,6 +10,7 @@ const validateBoardMember = require('../../middleware/validateBoardMember')
 const router = Router()
 router.use(authMiddleware)
 
+router.put('/moveLists', listController.moveList)
 
 router.get('/inBoard/:id', 
     listController.getListByBoard
@@ -37,12 +38,6 @@ router.delete('/:id',
     validateBoardMember,
     listController.deleteList
 )// Eliminar una lista en específico
-
-router.put('/move/:id', 
-    validateId(List, 'list'),
-    validateBoardMember,
-    listController.moveList
-)// Mover una lista a otro board
 
 
 module.exports = router;

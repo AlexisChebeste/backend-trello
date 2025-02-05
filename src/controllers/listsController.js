@@ -38,7 +38,7 @@ const getListByBoard = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const lists = await List.find({ boardId: id});
+        const lists = await List.find({ boardId: id}).sort({ position: 1 });
         res.status(200).json(lists);
     } catch (error) {
         res.status(500).json({ error: "Error al obtener las lists", details: error.message });
@@ -104,19 +104,36 @@ controller.updateList = updateList
 
 
 const moveList = async (req, res) => {
-    const { id } = req.params;
-    const { newPosition } = req.body;
-
+    const { idBoard, idList, newPosition } = req.body;
     try {
-        const list = await List.findById(id);
-        if (!list) return res.status(404).json({ error: "La lista no existe" });
+      
 
-        list.position = newPosition;
-        await list.save();
-
-        res.status(200).json(list);
+      if (!idBoard || !idList || newPosition === undefined) {
+        return res.status(400).json({ message: "Faltan parámetros" });
+      }
+  
+      const board = await Board.findById(idBoard).populate("lists");
+      if (!board) return res.status(404).json({ message: "Tablero no encontrado" });
+  
+      const lists = board.lists ;
+  
+      // Encontrar la lista a mover
+      const listToMove = lists.find((list) => list._id.toString() === idList);
+      if (!listToMove) return res.status(404).json({ message: "Lista no encontrada" });
+  
+      // Remover la lista de su posición actual
+      lists.splice(lists.indexOf(listToMove), 1);
+      // Insertarla en la nueva posición
+      lists.splice(newPosition, 0, listToMove);
+  
+      // Actualizar las posiciones en la base de datos
+      for (let i = 0; i < lists.length; i++) {
+        await List.findByIdAndUpdate(lists[i]._id, { position: i });
+      }
+  
+      res.json({ message: "Lista movida con éxito" });
     } catch (error) {
-        res.status(500).json({ error: "Error al mover la lista", details: error.message });
+      res.status(500).json({ message: "Error en el servidor", error });
     }
 };
 
