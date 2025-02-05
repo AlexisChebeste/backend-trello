@@ -105,37 +105,44 @@ controller.updateList = updateList
 
 const moveList = async (req, res) => {
     const { idBoard, idList, newPosition } = req.body;
-    try {
-      
 
-      if (!idBoard || !idList || newPosition === undefined) {
-        return res.status(400).json({ message: "Faltan parámetros" });
-      }
-  
-      const board = await Board.findById(idBoard).populate("lists");
-      if (!board) return res.status(404).json({ message: "Tablero no encontrado" });
-  
-      const lists = board.lists ;
-  
-      // Encontrar la lista a mover
-      const listToMove = lists.find((list) => list._id.toString() === idList);
-      if (!listToMove) return res.status(404).json({ message: "Lista no encontrada" });
-  
-      // Remover la lista de su posición actual
-      lists.splice(lists.indexOf(listToMove), 1);
-      // Insertarla en la nueva posición
-      lists.splice(newPosition, 0, listToMove);
-  
-      // Actualizar las posiciones en la base de datos
-      for (let i = 0; i < lists.length; i++) {
-        await List.findByIdAndUpdate(lists[i]._id, { position: i });
-      }
-  
-      res.json({ message: "Lista movida con éxito" });
+    try {
+        if (!idBoard || !idList || newPosition === undefined) {
+            return res.status(400).json({ message: "Faltan parámetros" });
+        }
+
+        const board = await Board.findById(idBoard).populate("lists");
+        if (!board) return res.status(404).json({ message: "Tablero no encontrado" });
+
+        const lists = [...board.lists];
+
+        // Encontrar la lista a mover
+        const listToMove = lists.find((list) => list._id.toString() === idList);
+        if (!listToMove) return res.status(404).json({ message: "Lista no encontrada" });
+
+        // Remover la lista de su posición actual
+        lists.splice(lists.indexOf(listToMove), 1);
+        // Insertarla en la nueva posición
+        lists.splice(newPosition, 0, listToMove);
+
+        // 🔥 Actualizar las posiciones y guardar en la base de datos
+        const updatedLists = await Promise.all(
+            lists.map((list, index) =>
+                List.findByIdAndUpdate(list._id, { position: index }, { new: true })
+            )
+        );
+
+        // 📌 Guardar el nuevo orden en `board.lists`
+        board.lists = updatedLists.map(list => list._id);
+        await board.save();
+
+        res.json({ message: "Lista movida con éxito", lists: updatedLists });
+
     } catch (error) {
-      res.status(500).json({ message: "Error en el servidor", error });
+        res.status(500).json({ message: "Error en el servidor", error });
     }
 };
+
 
 controller.moveList = moveList;
 

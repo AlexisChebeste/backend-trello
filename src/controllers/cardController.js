@@ -115,47 +115,53 @@ controller.updateTitleCard = updateTitleCard
 
 const moveCard = async (req, res) => {
   try {
-    const { idCard, newPosition, newListId } = req.body;
+    const { cardId, newListId, newPosition } = req.body;
 
-    const card = await Card.findById(idCard);
-    if (!card) {
-      return res.status(404).json({ message: "Card not found" });
-    }
+    const card = await Card.findById(cardId);
+    if (!card) return res.status(404).json({ message: "Card no encontrada" });
 
-    const oldListId = card.idList;
+    
 
-    // Verificar si la lista de destino existe
-    const newList = await List.findById(newListId);
-    if (!newList) {
-      return res.status(404).json({ message: "Destination list not found" });
-    }
-
-    // Obtener todas las tarjetas de la lista de destino
-    const cardsInNewList = await Card.find({ idList: newListId }).sort({ position: 1 });
-
-    // Si la tarjeta se mueve dentro de la misma lista
-    if (oldListId === newListId) {
-      cardsInNewList.splice(cardsInNewList.findIndex(c => c.id === idCard), 1); // Remover la tarjeta
-    }
-
-    // Insertar la tarjeta en la nueva posición
-    cardsInNewList.splice(newPosition, 0, card);
-
-    // Actualizar las posiciones
-    for (let i = 0; i < cardsInNewList.length; i++) {
-      cardsInNewList[i].position = i;
-      await cardsInNewList[i].save();
-    }
-
-    // Actualizar la lista si cambia
-    if (oldListId !== newListId) {
-      card.idList = newListId;
+    if(card.idList === newListId) {
+      // Si la card se mueve en la misma lista
+      // Eliminar card de la lista anterior
+      let oldList = await List.findByIdAndUpdate(
+        oldList.id,
+        { $pull: { cards: cardId }, $push: { cards: { $each: [card.id], $position: newPosition } } },
+        { new: true }
+      );
+      // Actualizar la card con la nueva posición
+      card.position = newPosition;
       await card.save();
+      return res.status(200).json(card);
     }
 
-    res.status(200).json({ message: "Card moved successfully", cards: cardsInNewList });
+    const oldList = await List.findById(card.idList);
+    const newList = await List.findById(newListId);
+    if (!oldList || !newList) return res.status(404).json({ message: "List no encontrada" });
+    // Si la card se mueve a otra lista
+    let updatedOldList = await List.findByIdAndUpdate(
+      card.idList,
+      { $pull: { cards: cardId } },
+      { new: true }
+    )
+
+    // Agregar la card a la nueva lista
+    let updatedNewList = await List.findByIdAndUpdate(
+      newList.id,
+      { $push: { cards: { ...card.id } } },
+      { new: true }
+    );
+
+    // Actualizar la card con la nueva lista y posición
+    card.idList = newList.id;
+    card.position = newPosition;
+    await card.save();
+
+    res.status(200).json(card);
   } catch (error) {
-    res.status(500).json({ message: "Error moving card", error });
+    console.error(error);
+    res.status(500).json({ message: "Error al mover la card" });
   }
 };
 
