@@ -117,7 +117,7 @@ const moveList = async (req, res) => {
         const lists = [...board.lists];
 
         // Encontrar la lista a mover
-        const listToMove = lists.find((list) => list._id.toString() === idList);
+        const listToMove = lists.find((list) => list.id === idList);
         if (!listToMove) return res.status(404).json({ message: "Lista no encontrada" });
 
         // Remover la lista de su posición actual

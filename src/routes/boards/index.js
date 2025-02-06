@@ -10,6 +10,20 @@ const validateBoardMember = require('../../middleware/validateBoardMember')
 const router = Router()
 router.use(authMiddleware)
 
+router.get("/:id/cards", async (req, res) => {
+    try {
+        const board = await Board.findById(req.params.id).populate({
+            path: "lists",
+            populate: { path: "cards" }
+        });
+        if (!board) return res.status(404).json({ message: "Board not found" });
+
+        const allCards = board.lists.flatMap(list => list.cards);
+        res.json(allCards);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching cards", error });
+    }
+});
 
 
 router.get('/inWorkspace/:id', 
