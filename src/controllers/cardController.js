@@ -108,7 +108,6 @@ const moveCard = async (req, res) => {
     const card = await Card.findById(cardId);
     if (!card) return res.status(404).json({ message: "Card no encontrada" });
 
-    //Verificar si la card se mueve en la misma lista 
     if(card.idList === newListId) {
       // Si la card se mueve en la misma lista
       const list = await List.findById(card.idList);
