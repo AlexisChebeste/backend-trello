@@ -74,7 +74,20 @@ const logout = (req, res) => {
 
 controller.logout = logout;
 
+const getUser = async (req, res) => {
+    const { id } = req.params;
+    try{
+        const user = await User.findById(id);
+        if(!user) return res.status(404).json({message: 'User not found'});
+        
+        const userValido = {id: user._id, name: user.name, lastname: user.lastname, email: user.email, avatar: user.avatar}
 
+        res.status(200).json(userValido);
+    }catch(err){
+        res.status(500).json({message: 'Error getting user', error: err.message});
+    }
+}
 
+controller.getUser = getUser;
 
 module.exports = controller;

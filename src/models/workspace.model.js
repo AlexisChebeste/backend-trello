@@ -40,8 +40,8 @@ const workspaceSchema = new Schema({
     }], // Invitados que solo tienen acceso a tableros específicos
     plan: {
         type: String,
-        enum: ['free', 'standard', 'premium', 'enterprise'],
-        default: 'free',
+        enum: ['Gratuito', 'Standard', 'Premium', 'Enterprise'],
+        default: 'Gratuito',
     }, // Plan del workspace
 
 }, { timestamps: true });

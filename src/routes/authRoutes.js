@@ -13,4 +13,8 @@ router.get('/profile', authMiddleware, (req, res) => {
     res.status(200).json({user: req.user});
 });
 
+router.get('/user/:id',
+    authController.getUser
+)
+
 module.exports = router;
