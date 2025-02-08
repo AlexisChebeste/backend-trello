@@ -178,5 +178,47 @@ const moveCard = async (req, res) => {
 
 controller.moveCard = moveCard;
 
+const updateCardDescription = async (req, res) => {
+  const { id } = req.params;
+  const { description } = req.body;
+
+  try {
+    const card = await Card.findByIdAndUpdate(
+      id,
+      { description },
+      { new: true }
+    );
+
+    if (!card) return res.status(404).json({ message: "Card not found" });
+
+    res.json(card);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating description", error });
+  }
+};
+
+controller.updateCardDescription = updateCardDescription;
+
+const addActivityToCard = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+  const { action, commentary } = req.body;
+
+  try {
+    const card = await Card.findById(id);
+
+    if (!card) return res.status(404).json({ message: "Card not found" });
+
+    const newActivity = { user: userId, action, commentary, timestamp: new Date() };
+    card.activity.push(newActivity);
+    await card.save();
+
+    res.json(card);
+  } catch (error) {
+    res.status(500).json({ message: "Error adding activity", error });
+  }
+};
+
+controller.addActivityToCard = addActivityToCard;
 
 module.exports = controller;

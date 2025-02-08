@@ -36,6 +36,10 @@ const cardJoiSchema = Joi.object({
           'string.base': 'La acción debe ser una cadena de texto.',
           'string.empty': 'La acción no puede estar vacía.',
         }),
+        commentary: Joi.string().messages({
+          'string.base': 'El comentario debe ser una cadena de texto.',
+          'string.empty': 'El comentario no puede estar vacío.',
+        }),
         timestamp: Joi.date().default(Date.now).messages({
           'date.base': 'El timestamp debe ser una fecha.',
         })

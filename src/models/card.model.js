@@ -33,6 +33,10 @@ const cardSchema = new Schema({
             type: Schema.Types.String, 
             required: true 
         }, // Acción realizada
+        commentary: { 
+            type: Schema.Types.String, 
+            default: '' 
+        }, // Comentario de la actividad
         timestamp: { 
             type: Schema.Types.Date, 
             default: Date.now 

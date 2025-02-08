@@ -30,6 +30,13 @@ router.put('/:id/title',
     cardsController.updateTitleCard
 )// Actualizar una card en específico
 
+router.put("/:id/description", 
+    cardsController.updateCardDescription
+)// Actualizar la descripción de una card en específico;
+
+router.post("/:id/activity", 
+    cardsController.addActivityToCard
+);// Agregar una actividad a una card en específico
 
 router.delete('/:id', 
     validateId(Card, 'card'),
