@@ -1,21 +1,30 @@
 const crypto = require('crypto');
-const Invitation = require('../models/Invitation');
-const Workspace = require('../models/Workspace');
-const Board = require('../models/Board');
+const Invitation = require('../models/invitation.model');
+const Workspace = require('../models/workspace.model');
+const Board = require('../models/board.model');
+const User = require('../models/user.model');
+const authMiddleware = require('../middleware/authMiddleware');
+const {Router} = require('express');
+const router = Router();
+
+
+router.use(authMiddleware);
 
 // Enviar invitación
 router.post('/:type/:id/invite', async (req, res) => {
     try {
         const { type, id } = req.params; // type: 'workspace' o 'board', id: ID del workspace o board
-        const { email } = req.body; // Email del invitado
-        const invitedBy = req.user._id; // Usuario que envió la invitación
+        const invitedBy = req.user.id; // Usuario que envió la invitación
 
         const token = crypto.randomBytes(20).toString('hex'); // Generar token único
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // Expira en 7 días
+        const user = await User.findById(invitedBy);
 
-        let invitation = new Invitation({
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const invitation = new Invitation({
             token,
-            email,
+            email: user.email,
             invitedBy,
             expiresAt,
         });
@@ -40,26 +49,32 @@ router.post('/:type/:id/invite', async (req, res) => {
 router.post('/invitations/:token/accept', async (req, res) => {
     try {
         const { token } = req.params;
-        const userId = req.user._id; // Usuario que acepta la invitación
+        const userId = req.user.id; // Usuario que acepta la invitación
 
         const invitation = await Invitation.findOne({ token, status: 'pending' });
         if (!invitation) return res.status(404).json({ message: 'Invalid or expired invitation' });
+
+        // Verificar si la invitación ha expirado
+        if (invitation.expiresAt < new Date()) {
+            return res.status(400).json({ message: 'Invitation expired' });
+        }
 
         // Agregar al workspace
         if (invitation.workspace) {
             const workspace = await Workspace.findById(invitation.workspace);
             if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
-
-            workspace.members.push(userId);
+            
+            if (!workspace.members.includes(userId)) {
+                workspace.members.push(userId);
+            }
             await workspace.save();
-        }
-
-        // Agregar al board
-        if (invitation.board) {
+        }else if (invitation.board) {
             const board = await Board.findById(invitation.board);
             if (!board) return res.status(404).json({ message: 'Board not found' });
 
-            board.members.push({ user: userId });
+            if (!board.members.some(member => member.user.toString() === userId.toString())) {
+                board.members.push({ user: userId, role: 'member' });
+            }
             await board.save();
         }
 
@@ -104,3 +119,7 @@ router.post('/workspaces/:workspaceId/join', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
+
+module.exports = router;
