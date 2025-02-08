@@ -1,5 +1,7 @@
 const Board = require('../models/board.model');
 const List = require('../models/list.model');
+const Card = require('../models/card.model');
+const mongoose = require('mongoose');
 controller = {}
 
 
@@ -65,11 +67,9 @@ const deleteList = async (req, res) => {
     const { id } = req.params;
 
     try {
-        await Board.updateMany(
-            {lists: id},
-            {$pull : {lists: id}}
-        );
+        await Board.updateOne({ lists: id }, { $pull: { lists: id} });
         
+        await Card.deleteMany({listId: id});
 
         await List.findByIdAndDelete(id);
 

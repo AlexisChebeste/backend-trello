@@ -18,7 +18,7 @@ const createCard = async (req, res) => {
           title, 
           idList: listId,
           position: count + 1,
-          activity: [{ user: userId, action: "Creó la tarjeta" }]
+          activity: [{ user: userId, action: "creó la tarjeta" }]
       });
       await newCard.save();
 

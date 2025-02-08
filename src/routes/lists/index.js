@@ -35,7 +35,6 @@ router.put('/:id',
 
 router.delete('/:id', 
     validateId(List, 'list'),
-    validateBoardMember,
     listController.deleteList
 )// Eliminar una lista en específico
 
