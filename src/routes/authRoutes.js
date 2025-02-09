@@ -10,7 +10,11 @@ router.post('/auth/signup', authController.signup);
 router.post('/auth/login', authController.login);
 router.post('/auth/logout', authController.logout);
 router.get('/profile', authMiddleware, (req, res) => {
-    res.status(200).json({user: req.user});
+    const user = req.user;
+    const userValido = {id: user.id, name: user.name, lastname: user.lastname, email: user.email, avatar: user.avatar, boards: user.boards, workspace: user.workspace}
+    
+    res.status(200).json(userValido);
+
 });
 
 router.get('/user/:id',

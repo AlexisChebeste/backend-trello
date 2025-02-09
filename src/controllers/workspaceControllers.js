@@ -29,15 +29,14 @@ const getAllWorkspacesByUser = async (req, res) => {
 controller.getAllWorkspacesByUser = getAllWorkspacesByUser;
 
 const getWorkspaceById = async (req,res) => {
-    const userId = req.user.id;
     const { id } = req.params;
     try{
         
-        const workspace = await Workspace.findById(id)
-
-        if (!workspace.members.includes(userId)) {
-            return res.status(403).json({ message: 'No tienes acceso a este workspace' });
+        const workspace = await Workspace.findById(id).populate('members')
+        if (!workspace) {
+            return res.status(404).json({ message: 'Workspace not found' });
         }
+
 
         res.status(200).json(workspace)
 
@@ -120,5 +119,65 @@ const changePublicStatus = async (req,res) => {
 }
 
 controller.changePublicStatus = changePublicStatus
+
+const acceptInvitation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {userId} = req.body;
+
+        const workspace = await Workspace.findById(id);
+        if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
+
+        // Verificar si el usuario está en las invitaciones
+        if (!workspace.invitations.some(invite => invite.user === userId)) {
+            return res.status(400).json({ message: 'No join request found for this user' });
+        }
+
+        // Agregar el usuario a los miembros del workspace
+        workspace.members.push(userId);
+        workspace.invitations = workspace.invitations.filter(invite => invite.user !== userId);
+        await workspace.save();
+
+        const user = await User.findById(userId);
+        if (!user.workspaces.includes(id)) {
+            user.workspaces.push(id);
+        }
+        await user.save();
+
+        res.status(200).json(workspace);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+controller.acceptInvitation = acceptInvitation
+
+const rejectInvitation = async (req, res) => {
+    try {
+        const { id} = req.params;
+        const {userId} = req.body;
+
+        const workspace = await Workspace.findById(id);
+        if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
+
+        // Verificar si el usuario está en las invitaciones
+        if (!workspace.invitations.some(invite => invite.user === userId)) {
+            return res.status(400).json({ message: 'No join request found for this user' });
+        }
+
+        // Eliminar el usuario de las invitaciones del workspace
+        workspace.invitations = workspace.invitations.filter(invite => invite.user !== userId);
+        await workspace.save();
+
+        res.status(200).json(workspace);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+controller.rejectInvitation = rejectInvitation
+
 
 module.exports = controller;

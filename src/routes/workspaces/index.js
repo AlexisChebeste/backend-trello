@@ -16,6 +16,9 @@ router.get('/all',
     workspacesController.getAllWorkspaces
 ); // Obtener todos los workspaces
 
+
+
+
 router.get('/my-workspaces', 
     workspacesController.getAllWorkspacesByUser
 ); // Obtener todos los workspaces del usuario
@@ -24,6 +27,7 @@ router.post('/',
     schemaValidator(workspacesSchema),
     workspacesController.createWorkspace
 ); // Crear un nuevo workspace
+
 
 router.get('/:id', 
     validateId(Workspace, 'workspace'),
@@ -45,23 +49,6 @@ router.delete('/:id',
     validateWorkspaceMember, 
     workspacesController.deleteWorkspace
 ); // Eliminar un workspace
-
-
-
-
-
-
-
-
-/* 
-// Miembros
-router.get('/:workspaceId/members', validateWorkspaceMember, workspacesController.getMembers); // Obtener miembros
-router.delete('/:workspaceId/members/:userId', validateWorkspaceMember, workspacesController.removeMember); // Eliminar miembro
- */
-
-/* // Invitaciones
-const invitationsRouter = require('./invitations');
-router.use('/:workspaceId/invitations', invitationsRouter); // Subruta para invitaciones*/
 
 
 
