@@ -32,6 +32,7 @@ const workspaceSchema = new Schema({
     }],
     invitations: [{
         user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Usuario invitado
+        dateSolicited: { type: Date}, // Fecha de solicitud
         status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' }, // Estado de la solicitud
     }], // Solicitudes de unión al workspace
     invitedGuests: [{

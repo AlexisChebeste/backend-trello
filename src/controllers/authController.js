@@ -23,8 +23,9 @@ const signup = async (req, res) => {
         if(existingUser) return res.status(400).json({message: 'Email already exists'});
 
         const user = new User(req.body);
-        const randomGradient = getRandomGradient()
-        user.avatar = `/gradientes/${randomGradient}`,
+        const iniciales = user.name.charAt(0) + user.lastname.charAt(0);
+        
+        user.avatar = `https://ui-avatars.com/api/?name=${iniciales}&background=4C2882&color=fff`,
 
         await user.save();
         res.status(201).json({message: 'User registered successfully'});

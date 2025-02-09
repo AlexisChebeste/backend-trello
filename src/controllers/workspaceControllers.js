@@ -17,7 +17,7 @@ const getAllWorkspacesByUser = async (req, res) => {
         const userId = req.user.id;
 
         // Obtener solo los workspaces en los que el usuario es miembro
-        const workspaces = await Workspace.find({ members: userId });
+        const workspaces = await Workspace.find({ members: userId }).populate('members');
 
         res.status(200).json( workspaces );
     } catch (error) {
