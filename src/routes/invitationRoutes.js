@@ -4,12 +4,13 @@ const Workspace = require('../models/workspace.model');
 const Board = require('../models/board.model');
 const User = require('../models/user.model');
 const authMiddleware = require('../middleware/authMiddleware');
-const workspacesController = require('../controllers/workspaceControllers');
 const {Router} = require('express');
 const router = Router();
 
 
 router.use(authMiddleware);
+
+
 
 // Enviar invitación
 router.post('/:type/:id/invite', async (req, res) => {
@@ -83,17 +84,18 @@ router.post('/invitations/:token/accept', async (req, res) => {
             const board = await Board.findById(invitation.board);
             if (!board) return res.status(404).json({ message: 'Board not found' });
 
-            if (!board.members.some(member => member.user === userId)) {
+            if (!board.members.some(member => String(member.user) === userId)) {
                 board.members.push({ user: userId, role: 'member' });
             }
             await board.save();  
 
             const workspace = await Workspace.find({boards: board.id});
-            if(!workspace.invitedGuests.some(invitedGuest => invitedGuest.user === userId)){
+            if(!workspace) return res.status(404).json({ message: 'Workspace not found' });
+            if(!workspace.invitedGuests.some(invitedGuest => String(invitedGuest.user) === userId)){
                 workspace.invitedGuests.push({ user: userId, boards: [board.id] });
                 
             } else {
-                const invitedGuest = workspace.invitedGuests.find(invitedGuest => invitedGuest.user === userId);
+                const invitedGuest = workspace.invitedGuests.find(invitedGuest => String(invitedGuest.user) === userId);
                 if (!invitedGuest.boards.includes(board.id)) {
                     invitedGuest.boards.push(board.id);
                 }
@@ -135,7 +137,7 @@ router.post('/workspaces/:workspaceId/join', async (req, res) => {
         }
 
         // Verificar si ya ha solicitado unirse
-        if (workspace.invitations.some(invite => invite.user === userId)) {
+        if (workspace.invitations.some(invite => String(invite.user) === userId)) {
             return res.status(400).json({ message: 'You have already requested to join this workspace' });
         }
 
@@ -154,13 +156,7 @@ router.post('/workspaces/:workspaceId/join', async (req, res) => {
     }
 });
 
-router.post('/workspaces/:id/invitations/accept', 
-    workspacesController.acceptInvitation
-); // Aceptar una invitación a un workspace
 
-router.post('/workspaces/:id/invitations/reject', 
-    workspacesController.rejectInvitation
-); // Rechazar una invitación a un workspace
 
 
 

@@ -28,6 +28,13 @@ router.post('/',
     workspacesController.createWorkspace
 ); // Crear un nuevo workspace
 
+router.post('/invitations/:id/accept',
+    workspacesController.acceptInvitation 
+); // Aceptar una invitación a un workspace
+
+router.post('/invitations/:id/reject', 
+    workspacesController.rejectInvitation
+); // Rechazar una invitación a un workspace
 
 router.get('/:id', 
     validateId(Workspace, 'workspace'),

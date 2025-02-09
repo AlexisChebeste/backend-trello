@@ -125,18 +125,27 @@ const acceptInvitation = async (req, res) => {
         const { id } = req.params;
         const {userId} = req.body;
 
+        
+
         const workspace = await Workspace.findById(id);
         if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
-
+        
         // Verificar si el usuario está en las invitaciones
-        if (!workspace.invitations.some(invite => invite.user === userId)) {
+        if (!workspace.invitations.some(invite => String(invite.user) === userId)) {
+            
             return res.status(400).json({ message: 'No join request found for this user' });
         }
 
         // Agregar el usuario a los miembros del workspace
         workspace.members.push(userId);
-        workspace.invitations = workspace.invitations.filter(invite => invite.user !== userId);
+        workspace.invitations = workspace.invitations.filter(invite => String(invite.user) !== userId);
+        if(workspace.invitedGuests.some(invite => String(invite.user) === userId)){
+            workspace.invitedGuests = workspace.invitedGuests.filter(invite => String(invite.user) !== userId);
+        }
+
+
         await workspace.save();
+
 
         const user = await User.findById(userId);
         if (!user.workspaces.includes(id)) {
@@ -162,12 +171,12 @@ const rejectInvitation = async (req, res) => {
         if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
 
         // Verificar si el usuario está en las invitaciones
-        if (!workspace.invitations.some(invite => invite.user === userId)) {
+        if (!workspace.invitations.some(invite => String(invite.user) === userId)) {
             return res.status(400).json({ message: 'No join request found for this user' });
         }
 
         // Eliminar el usuario de las invitaciones del workspace
-        workspace.invitations = workspace.invitations.filter(invite => invite.user !== userId);
+        workspace.invitations = workspace.invitations.filter(invite => String(invite.user) !== userId);
         await workspace.save();
 
         res.status(200).json(workspace);
