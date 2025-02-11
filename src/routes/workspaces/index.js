@@ -16,12 +16,13 @@ router.get('/all',
     workspacesController.getAllWorkspaces
 ); // Obtener todos los workspaces
 
-
-
-
 router.get('/my-workspaces', 
     workspacesController.getAllWorkspacesByUser
 ); // Obtener todos los workspaces del usuario
+
+router.get('/workspaces-info',
+    workspacesController.getWorkspaceInfoByBoardsArchived
+)
 
 router.post('/', 
     schemaValidator(workspacesSchema),

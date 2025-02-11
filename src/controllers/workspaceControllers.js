@@ -17,8 +17,7 @@ const getAllWorkspacesByUser = async (req, res) => {
         const userId = req.user.id;
 
         // Obtener solo los workspaces en los que el usuario es miembro
-        const workspaces = await Workspace.find({ members: userId }).populate('members');
-
+        const workspaces = await Workspace.find({ members: userId }).populate('members').populate('boards');
         res.status(200).json( workspaces );
     } catch (error) {
         console.error(error);
@@ -27,6 +26,79 @@ const getAllWorkspacesByUser = async (req, res) => {
 }
 
 controller.getAllWorkspacesByUser = getAllWorkspacesByUser;
+
+const getWorkspaceInfoByBoardsArchived = async (req, res) => {
+    try{
+        const userId = req.user.id;
+
+        // Convertimos userId a ObjectId solo si es necesario
+        const userObjectId = mongoose.Types.ObjectId.isValid(userId) ? new mongoose.Types.ObjectId(userId) : userId;
+
+        const workspaces = await Workspace.aggregate([
+            {
+                $match: {
+                    "invitedGuests.user": userObjectId
+                }
+            },
+            {
+                $unwind: { path: "$invitedGuests", preserveNullAndEmptyArrays: true }
+            },
+            {
+                $match: {
+                    "invitedGuests.user": userObjectId
+                }
+            },
+            {
+                $lookup: {
+                    from: "boards",
+                    localField: "invitedGuests.boards",
+                    foreignField: "_id",
+                    as: "allowedBoards"
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    name: 1,
+                    boards: {
+                        $map: {
+                            input: "$allowedBoards",
+                            as: "board",
+                            in: {
+                                id: "$$board._id", // Convertimos _id a id en cada board
+                                name: "$$board.name",
+                                isArchived: "$$board.isArchived",
+                                idWorkspace: "$$board.idWorkspace",
+                                color: "$$board.color",
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: "$id",
+                    name: { $first: "$name" },
+                    boards: { $first: "$boards" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    id: "$_id",
+                    name: 1,
+                    boards: 1
+                }
+            }
+        ]);
+        res.status(200).json(workspaces)
+    }catch(error){
+        res.status(500).json({ message: 'Error al obtener workspaces', error: error.message });
+    }
+}
+
+controller.getWorkspaceInfoByBoardsArchived = getWorkspaceInfoByBoardsArchived;
 
 const getWorkspaceById = async (req,res) => {
     const { id } = req.params;
