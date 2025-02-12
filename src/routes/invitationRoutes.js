@@ -10,8 +10,6 @@ const router = Router();
 
 router.use(authMiddleware);
 
-
-
 // Enviar invitación
 router.post('/:type/:id/invite', async (req, res) => {
     try {
@@ -53,7 +51,7 @@ router.post('/invitations/:token/accept', async (req, res) => {
         const { token } = req.params;
         const userId = req.user.id; // Usuario que acepta la invitación
 
-        if(!userId) return res.status(404).json({ message: 'User not found' });
+        if (!userId) return res.status(404).json({ message: 'User not found' });
 
         const invitation = await Invitation.findOne({ token, status: 'pending' });
         if (!invitation) return res.status(404).json({ message: 'Invalid or expired invitation' });
@@ -63,49 +61,48 @@ router.post('/invitations/:token/accept', async (req, res) => {
             return res.status(400).json({ message: 'Invitation expired' });
         }
 
-        // Agregar al workspace
         if (invitation.workspace) {
             const workspace = await Workspace.findById(invitation.workspace);
             if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
-            
-            if (!workspace.members.includes(userId)) {
+
+            if (!workspace.members.some(member => String(member) === String(userId))) {
                 workspace.members.push(userId);
             }
-
             await workspace.save();
 
             const user = await User.findById(userId);
-            if (!user.workspaces.includes(workspace.id)) {
+            if (!user.workspaces.some(workspaceId => String(workspaceId) === String(workspace.id))) {
                 user.workspaces.push(workspace.id);
             }
             await user.save();
-
-        }else if (invitation.board) {
+        } else if (invitation.board) {
             const board = await Board.findById(invitation.board);
             if (!board) return res.status(404).json({ message: 'Board not found' });
-
-            if (!board.members.some(member => String(member.user) === userId)) {
+            console.log("Estoy en el board");
+            if (!board.members.some(member => String(member.user) === String(userId))) {
+                console.log("No estoy en el board");
                 board.members.push({ user: userId, role: 'member' });
             }
-            await board.save();  
+            await board.save();
 
-            const workspace = await Workspace.find({boards: board.id});
-            if(!workspace) return res.status(404).json({ message: 'Workspace not found' });
-            if(!workspace.invitedGuests.some(invitedGuest => String(invitedGuest.user) === userId)){
+            const workspace = await Workspace.findOne({ boards: board.id });
+            if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
+
+            if (!workspace.invitedGuests.some(invitedGuest => String(invitedGuest.user) === String(userId))) {
+                console.log("No estoy en el workspace");
                 workspace.invitedGuests.push({ user: userId, boards: [board.id] });
-                
             } else {
-                const invitedGuest = workspace.invitedGuests.find(invitedGuest => String(invitedGuest.user) === userId);
-                if (!invitedGuest.boards.includes(board.id)) {
+                const invitedGuest = workspace.invitedGuests.find(invitedGuest => String(invitedGuest.user) === String(userId));
+                if (!invitedGuest.boards.includes(String(board.id))) {
+                    console.log("Estoy en el workspace");
                     invitedGuest.boards.push(board.id);
                 }
             }
-
             await workspace.save();
 
-            
             const user = await User.findById(userId);
-            if (!user.boards.includes(board.id)) {
+            if (!user.boards.some(boardId => String(boardId) === String(board.id))) {
+                console.log("No estoy en el user");
                 user.boards.push(board.id);
             }
             await user.save();
@@ -121,7 +118,6 @@ router.post('/invitations/:token/accept', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-
 
 router.post('/workspaces/:workspaceId/join', async (req, res) => {
     try {

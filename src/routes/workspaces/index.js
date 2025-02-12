@@ -52,6 +52,21 @@ router.put('/:id/is-public',
     workspacesController.changePublicStatus
 ); // Cambiar el estado de publico a privado y viceversa
 
+router.post('/:id/members', 
+    validateId(Workspace, 'workspace'),
+    workspacesController.addMember
+); // Agregar un miembro a un workspace
+
+router.delete('/:id/invited-guests/:userId', 
+    validateId(Workspace, 'workspace'),
+    workspacesController.removeInvitedGuest
+); // Eliminar un miembro de un workspace
+
+router.delete('/:id/members/:userId', 
+    validateId(Workspace, 'workspace'),
+    workspacesController.removeMember
+); // Eliminar un miembro de un workspace
+
 router.delete('/:id', 
     validateId(Workspace, 'workspace'),
     validateWorkspaceMember, 
