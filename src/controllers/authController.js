@@ -50,8 +50,8 @@ const login = async (req,res) => {
         const expiresIn = 3600
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: true,
+            sameSite: 'none',
             maxAge: expiresIn * 1000,
         });
 
