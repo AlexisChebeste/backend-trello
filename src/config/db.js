@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const MONGO_URL = process.env.MONGO_URL ?? "mongodb+srv://alexispaulino:mQqP6WuCVelpUgT3@clone-trello.qc05k.mongodb.net/?retryWrites=true&w=majority&appName=clone-trello";
+const MONGO_URL = process.env.MONGO_URL ?? "mongodb://localhost:27017/ecommerce";
 
 
 
