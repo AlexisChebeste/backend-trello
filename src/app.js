@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3000
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 
-const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'
+const FRONTEND_URL = process.env.VITE_FRONTEND_URL || 'http://localhost:5173'
 
 const app = express()
 app.use(express.json())
