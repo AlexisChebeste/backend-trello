@@ -57,6 +57,16 @@ router.post('/:id/members',
     workspacesController.addMember
 ); // Agregar un miembro a un workspace
 
+router.delete('/:id/invited-guests/:userId/boards/:boardId',
+    validateId(Workspace, 'workspace'),
+    workspacesController.deleteBoardInvitedGuest
+)
+
+router.delete('/:id/members/:userId/boards/:boardId',
+    validateId(Workspace, 'workspace'),
+    workspacesController.deleteBoardMember
+)
+
 router.delete('/:id/invited-guests/:userId', 
     validateId(Workspace, 'workspace'),
     workspacesController.removeInvitedGuest

@@ -1,13 +1,13 @@
 const gradients = [
-    "gradientceleste.svg",
-    "gradientazul.svg",
-    "gradientvioleta.svg",
-    "gradientfucsia.svg",
-    "gradientnaranja.svg",
-    "gradientrosa.svg",
-    "gradientverde.svg",
-    "gradientgris.svg",
-    "gradientmarron.svg",
+    "gradientCeleste.svg",
+    "gradientAzul.svg",
+    "gradientVioleta.svg",
+    "gradientFucsia.svg",
+    "gradientNaranja.svg",
+    "gradientRosa.svg",
+    "gradientVerde.svg",
+    "gradientGris.svg",
+    "gradientMarron.svg",
 ]
 
 const getRandomGradient = () => {

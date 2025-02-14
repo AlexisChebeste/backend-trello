@@ -376,4 +376,85 @@ const removeInvitedGuest = async (req, res) => {
 
 controller.removeInvitedGuest = removeInvitedGuest;
 
+const deleteBoardInvitedGuest = async (req, res) => {
+    try {
+        const { id, userId, boardId } = req.params;
+
+        const workspace = await Workspace.findById(id);
+        if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
+
+        // Verificar si el usuario está en los invitados
+        const invitedGuest = workspace.invitedGuests.find(invite => String(invite.user) === userId);
+        if (!invitedGuest) {
+            return res.status(400).json({ message: 'El usuario no es miembro del workspace.' });
+        }
+
+        // Eliminar el board del usuario en invitedGuests.boards
+        invitedGuest.boards = invitedGuest.boards.filter(board => String(board) !== boardId);
+
+        // Si el usuario se queda sin boards, eliminarlo de invitedGuests
+        if (invitedGuest.boards.length === 0) {
+            workspace.invitedGuests = workspace.invitedGuests.filter(invite => String(invite.user) !== userId);
+        }
+        
+        workspace.populate('members');
+        await workspace.save();
+
+        // Eliminar el usuario de los boards del workspace
+        const board = await Board.findById(boardId);
+        if (!board) return res.status(404).json({ message: 'Board not found' });
+
+        board.members = board.members.filter(member => String(member.user) !== userId);
+        await board.save();
+
+        // Eliminar el board del usuario
+        const user = await User.findById(userId);
+        user.boards = user.boards.filter(board => String(board) !== boardId);
+        await user.save();
+
+        res.status(200).json(workspace);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+controller.deleteBoardInvitedGuest = deleteBoardInvitedGuest;
+
+const deleteBoardMember = async (req, res) => {
+    try{
+        const { id, userId, boardId } = req.params;
+
+        const workspace = await Workspace.findById(id);
+        if (!workspace) return res.status(404).json({ message: 'Workspace not found' });
+
+        // Verificar si el usuario está en los miembros
+        const member = workspace.members.find(member => String(member) === userId);
+        if (!member) {
+            return res.status(400).json({ message: 'El usuario no es miembro del workspace.' });
+        }
+
+        workspace.populate('members');
+        await workspace.save();
+
+        // Eliminar el usuario de los boards del workspace
+        const board = await Board.findById(boardId);
+        if (!board) return res.status(404).json({ message: 'Board not found' });
+
+        board.members = board.members.filter(member => String(member.user) !== userId);
+        await board.save();
+
+        // Eliminar el board del usuario
+        const user = await User.findById(userId);
+        user.boards = user.boards.filter(board => String(board) !== boardId);
+        await user.save();
+
+        res.status(200).json(workspace);
+    }catch(error){
+        res.status(500).json({error: "Error al eliminar el miembro del board", details: error.message })
+    }
+}
+
+controller.deleteBoardMember = deleteBoardMember;
+
 module.exports = controller;
